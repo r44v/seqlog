@@ -1,4 +1,12 @@
 ===============================
+Fork of SeqLog
+===============================
+
+- [x] Added exception/traceback logging
+- [x] Added extra_record_attributes
+- [ ] Integrate extra_record_attributes with log_props
+
+===============================
 SeqLog
 ===============================
 
