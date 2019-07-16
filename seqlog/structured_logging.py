@@ -383,8 +383,6 @@ class SeqLogHandler(logging.Handler):
         }
         request_body_json = json.dumps(request_body, cls=self.json_encoder_class)
 
-        print(request_body_json)
-
         self.acquire()
         response = None
         try:
