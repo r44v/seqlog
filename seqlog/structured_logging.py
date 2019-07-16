@@ -7,6 +7,8 @@ import logging
 import os
 import socket
 import sys
+import traceback
+import logging
 from datetime import datetime
 from dateutil.tz import tzlocal
 from queue import Queue
@@ -25,6 +27,9 @@ _default_global_log_props = {
 
 # Global properties attached to all log entries.
 _global_log_props = _default_global_log_props
+
+# Add extra record args as seq properties
+_extra_record_attributes = []
 
 
 def get_global_log_properties(logger_name=None):
@@ -56,6 +61,19 @@ def set_global_log_properties(**properties):
     global _global_log_props
 
     _global_log_props = {key: value for (key, value) in properties.items()}
+
+
+def overwrite_extra_record_attributes(*attributes):
+    """
+    Replaces the _extra_record_properties to add LogRecord attributes
+
+    :param attributes: Keyword arguments representing the properties.
+    :type attributes: list
+    """
+
+    global _extra_record_attributes
+
+    _extra_record_attributes = list(attributes)
 
 
 def reset_global_log_properties():
@@ -365,6 +383,8 @@ class SeqLogHandler(logging.Handler):
         }
         request_body_json = json.dumps(request_body, cls=self.json_encoder_class)
 
+        print(request_body_json)
+
         self.acquire()
         response = None
         try:
@@ -429,6 +449,20 @@ def _build_event_data(record):
             "MessageTemplate": record.getMessage(),
             "Properties": _global_log_props
         }
+    
+    # If record contains exception data and exception is of type error
+    if record.exc_info and any(record.exc_info) and record.levelno == logging.ERROR:
+        # Add seq exception data
+        event_data.update({
+            "Exception": str.join('', traceback.format_exception(*record.exc_info))
+        })
+
+    # Add extra properties for each record
+    for attribute in _extra_record_attributes:
+        if hasattr(record, attribute):
+            event_data.get('Properties').update({
+                attribute: getattr(record, attribute)
+            })
 
     return event_data
 

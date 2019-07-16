@@ -8,6 +8,7 @@ from seqlog.structured_logging import StructuredLogger, StructuredRootLogger
 from seqlog.structured_logging import SeqLogHandler, ConsoleStructuredLogHandler
 from seqlog.structured_logging import get_global_log_properties as _get_global_log_properties
 from seqlog.structured_logging import set_global_log_properties as _set_global_log_properties
+from seqlog.structured_logging import overwrite_extra_record_attributes as _overwrite_extra_record_attributes
 from seqlog.structured_logging import clear_global_log_properties as _clear_global_log_properties
 from seqlog.structured_logging import reset_global_log_properties as _reset_global_log_properties
 
@@ -178,3 +179,14 @@ def _override_root_logger():
     logging.root = StructuredRootLogger(logging.WARNING)
     logging.Logger.root = logging.root
     logging.Logger.manager = logging.Manager(logging.Logger.root)
+
+
+def overwrite_extra_record_attributes(*attributes):
+    """
+    Replaces the _extra_record_properties to add LogRecord attributes
+
+    :param attributes: Keyword arguments representing the properties.
+    :type attributes: list
+    """
+
+    _overwrite_extra_record_attributes(*attributes)
