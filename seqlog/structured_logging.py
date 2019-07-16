@@ -456,11 +456,18 @@ def _build_event_data(record):
         })
 
     # Add extra properties for each record
-    for attribute in _extra_record_attributes:
-        if hasattr(record, attribute):
-            event_data.get('Properties').update({
-                attribute: getattr(record, attribute)
-            })
+
+    if len(_extra_record_attributes) != 0:
+        props = dict(event_data.get('Properties'))
+
+        for attribute in _extra_record_attributes:
+            if hasattr(record, attribute):
+                props.update({
+                    # change value to string to prevent it being a reference to record
+                    attribute: getattr(record, attribute)
+                })
+
+        event_data.update({"Properties": props})
 
     return event_data
 
